@@ -27,7 +27,7 @@ scene.add(light);
 
 let avatar;
 const loader = new GLTFLoader();
-loader.load('/model/avatar.glb', function(gltf) {
+loader.load('model/avatar.glb', function(gltf) {
   avatar = gltf.scene;
   scene.add(avatar);
   avatar.position.set(0, -1, 0);
