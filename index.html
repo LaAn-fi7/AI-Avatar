@@ -1,76 +1,100 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>avatar ai with model viewer</title>
+  <meta charset="UTF-8" />
+  <title>Alya - AI Avatar</title>
   <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
   <style>
-    body { margin: 0; overflow: hidden; font-family: sans-serif; }
+    body {
+      margin: 0;
+      background-color: #1e1b29;
+      font-family: sans-serif;
+      overflow: hidden;
+    }
     model-viewer {
       width: 100vw;
       height: 100vh;
-      position: absolute;
-      top: 0;
-      left: 0;
+      --poster-color: transparent;
     }
-    #videoelement {
-      display: none;
-    }
-    #chatinput {
+    #controls {
       position: absolute;
-      bottom: 10px;
-      left: 10px;
-      width: 300px;
-      padding: 10px;
-      font-size: 16px;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
       z-index: 2;
+    }
+    button {
+      padding: 10px 15px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid #888;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+    }
+    input {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      width: 240px;
     }
   </style>
 </head>
 <body>
-  <!-- webcam element (optional) -->
-  <video id="videoelement" autoplay muted playsinline></video>
+  <model-viewer
+    id="avatar"
+    src="avatar.glb"
+    alt="AI Avatar"
+    shadow-intensity="1"
+    camera-controls
+    autoplay
+    auto-rotate
+    exposure="1.2"
+    environment-image="https://modelviewer.dev/shared-assets/environments/neutral.hdr"
+  ></model-viewer>
 
-  <!-- 3d model -->
-  <model-viewer id="avatar" src="avatar.glb" alt="3d avatar" camera-controls auto-rotate shadow-intensity="1">
-  </model-viewer>
-
-  <!-- chat input -->
-  <input id="chatinput" type="text" placeholder="tanya sesuatu..." />
+  <div id="controls">
+    <button onclick="startVoice()">🎤</button>
+    <button onclick="capture()">📸</button>
+    <input type="text" id="chatInput" placeholder="Tanya sesuatu..." />
+  </div>
 
   <script>
-    // webcam activation (optional, can be removed)
-    const video = document.getelementbyid('videoelement');
-    navigator.mediadevices.getusermedia({ video: true, audio: false })
-      .then(stream => video.srcobject = stream)
-      .catch(err => console.error('webcam error:', err));
+    const synth = window.speechSynthesis;
 
-    // text-to-speech
     function speak(text) {
-      const utterance = new speechsynthesisutterance(text);
-      utterance.lang = 'id-id'; // ubah ke 'en-us' jika ingin inggris
-      speechsynthesis.speak(utterance);
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'id-ID';
+      synth.speak(utter);
     }
 
-    // simulasi chatgpt response
-    async function getchatresponse(text) {
-      const responses = {
-        "hai": "hai juga! apa kabar?",
-        "siapa namamu": "namaku ani, teman virtualmu.",
-      };
-      return responses[text.tolowercase()] || "aku belum paham itu, tapi aku sedang belajar~";
-    }
-
-    // event input chat
-    const input = document.getelementbyid('chatinput');
-    input.addeventlistener('keydown', async (e) => {
-      if (e.key === 'enter' && input.value.trim()) {
-        const message = input.value.trim();
-        input.value = '';
-        const response = await getchatresponse(message);
-        speak(response);
+    const chatInput = document.getElementById('chatInput');
+    chatInput.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter' && chatInput.value.trim()) {
+        const userInput = chatInput.value.trim();
+        chatInput.value = '';
+        // sementara pakai balasan statis
+        const reply = userInput.toLowerCase().includes('siapa') ? "Namaku Alya, senang bertemu!" : "Aku di sini untukmu.";
+        speak(reply);
       }
     });
+
+    function capture() {
+      const canvas = document.querySelector('model-viewer').shadowRoot.querySelector('canvas');
+      const img = canvas.toDataURL();
+      const a = document.createElement('a');
+      a.href = img;
+      a.download = 'avatar.png';
+      a.click();
+    }
+
+    function startVoice() {
+      // fitur mic bisa ditambahkan nanti dengan Web Speech API
+      alert("🎤 Fitur suara akan segera ditambahkan.");
+    }
   </script>
 </body>
 </html>
