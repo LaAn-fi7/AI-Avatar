@@ -1,1 +1,64 @@
-a
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Avatar AI Template</title>
+  <style>
+    body { margin: 0; overflow: hidden; }
+    canvas { display: block; }
+    #videoElement { display: none; }
+  </style>
+</head>
+<body>
+  <video id="videoElement" autoplay muted playsinline></video>
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
+    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(1, 1, 1);
+scene.add(light);
+
+const loader = new GLTFLoader();
+loader.load('/model/avatar.glb', function(gltf) {
+  const avatar = gltf.scene;
+  scene.add(avatar);
+  avatar.position.set(0, -1, 0);
+  camera.position.z = 2;
+
+  animate();
+
+  function animate() {
+    requestAnimationFrame(animate);
+    avatar.rotation.y += 0.01; // Simple idle animation
+    renderer.render(scene, camera);
+  }
+});
+
+// Webcam Feed (WebRTC base)
+const video = document.getElementById('videoElement');
+navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+  .then((stream) => {
+    video.srcObject = stream;
+    video.onloadedmetadata = () => video.play();
+
+    // WebRTC Stream setup (optional)
+    // For example, canvas stream to peer
+    // const streamOut = renderer.domElement.captureStream();
+    // sendStreamToPeer(streamOut);
+  })
+  .catch(err => console.error('Webcam error:', err));
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+  </script>
+</body>
+</html>
