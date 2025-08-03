@@ -1,25 +1,76 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>My 3D Avatar</title>
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
-    <style>
-      body { margin: 0; }
-      model-viewer {
-        width: 100vw;
-        height: 100vh;
+<head>
+  <meta charset="utf-8" />
+  <title>avatar ai with model viewer</title>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+  <style>
+    body { margin: 0; overflow: hidden; font-family: sans-serif; }
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    #videoelement {
+      display: none;
+    }
+    #chatinput {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      width: 300px;
+      padding: 10px;
+      font-size: 16px;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+  <!-- webcam element (optional) -->
+  <video id="videoelement" autoplay muted playsinline></video>
+
+  <!-- 3d model -->
+  <model-viewer id="avatar" src="avatar.glb" alt="3d avatar" camera-controls auto-rotate shadow-intensity="1">
+  </model-viewer>
+
+  <!-- chat input -->
+  <input id="chatinput" type="text" placeholder="tanya sesuatu..." />
+
+  <script>
+    // webcam activation (optional, can be removed)
+    const video = document.getelementbyid('videoelement');
+    navigator.mediadevices.getusermedia({ video: true, audio: false })
+      .then(stream => video.srcobject = stream)
+      .catch(err => console.error('webcam error:', err));
+
+    // text-to-speech
+    function speak(text) {
+      const utterance = new speechsynthesisutterance(text);
+      utterance.lang = 'id-id'; // ubah ke 'en-us' jika ingin inggris
+      speechsynthesis.speak(utterance);
+    }
+
+    // simulasi chatgpt response
+    async function getchatresponse(text) {
+      const responses = {
+        "hai": "hai juga! apa kabar?",
+        "siapa namamu": "namaku ani, teman virtualmu.",
+      };
+      return responses[text.tolowercase()] || "aku belum paham itu, tapi aku sedang belajar~";
+    }
+
+    // event input chat
+    const input = document.getelementbyid('chatinput');
+    input.addeventlistener('keydown', async (e) => {
+      if (e.key === 'enter' && input.value.trim()) {
+        const message = input.value.trim();
+        input.value = '';
+        const response = await getchatresponse(message);
+        speak(response);
       }
-    </style>
-  </head>
-  <body>
-    <model-viewer 
-      src="avatar.glb" 
-      alt="My 3D Avatar"
-      camera-controls 
-      autoplay 
-      auto-rotate 
-      shadow-intensity="1">
-    </model-viewer>
-  </body>
+    });
+  </script>
+</body>
 </html>
