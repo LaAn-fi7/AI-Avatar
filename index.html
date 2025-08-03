@@ -1,51 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Simple 3D Viewer</title>
-  <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { display: block; }
-  </style>
-</head>
-<body>
-  <script type="module">
-    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
-    import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';
-
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.body.appendChild(renderer.domElement);
-
-    const light = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
-    scene.add(light);
-
-    // Load model
-    const loader = new GLTFLoader();
-    loader.load('avatar.glb', (gltf) => {
-      const model = gltf.scene;
-      model.position.set(0, -1, 0);
-      scene.add(model);
-      animate();
-    }, undefined, (error) => {
-      console.error('Failed to load GLB:', error);
-    });
-
-    camera.position.z = 2;
-
-    function animate() {
-      requestAnimationFrame(animate);
-      scene.rotation.y += 0.005;
-      renderer.render(scene, camera);
-    }
-
-    window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>My 3D Avatar</title>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+    <style>
+      body { margin: 0; }
+      model-viewer {
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <model-viewer 
+      src="avatar.glb" 
+      alt="My 3D Avatar"
+      camera-controls 
+      autoplay 
+      auto-rotate 
+      shadow-intensity="1">
+    </model-viewer>
+  </body>
 </html>
