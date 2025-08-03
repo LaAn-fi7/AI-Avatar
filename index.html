@@ -7,10 +7,12 @@
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
     #videoElement { display: none; }
+    #chatInput { position: absolute; bottom: 10px; left: 10px; padding: 8px; width: 300px; }
   </style>
 </head>
 <body>
   <video id="videoElement" autoplay muted playsinline></video>
+  <input id="chatInput" type="text" placeholder="Tanya sesuatu..." />
   <script type="module">
     import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js';
     import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/loaders/GLTFLoader.js';const scene = new THREE.Scene();
@@ -23,35 +25,60 @@ const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(1, 1, 1);
 scene.add(light);
 
+let avatar;
 const loader = new GLTFLoader();
 loader.load('/model/avatar.glb', function(gltf) {
-  const avatar = gltf.scene;
+  avatar = gltf.scene;
   scene.add(avatar);
   avatar.position.set(0, -1, 0);
   camera.position.z = 2;
-
   animate();
-
-  function animate() {
-    requestAnimationFrame(animate);
-    avatar.rotation.y += 0.01; // Simple idle animation
-    renderer.render(scene, camera);
-  }
 });
 
-// Webcam Feed (WebRTC base)
+function animate() {
+  requestAnimationFrame(animate);
+  if (avatar) avatar.rotation.y += 0.01;
+  renderer.render(scene, camera);
+}
+
+// Webcam Feed
 const video = document.getElementById('videoElement');
 navigator.mediaDevices.getUserMedia({ video: true, audio: false })
   .then((stream) => {
     video.srcObject = stream;
     video.onloadedmetadata = () => video.play();
-
-    // WebRTC Stream setup (optional)
-    // For example, canvas stream to peer
-    // const streamOut = renderer.domElement.captureStream();
-    // sendStreamToPeer(streamOut);
   })
   .catch(err => console.error('Webcam error:', err));
+
+// Text-to-Speech (basic browser TTS)
+function speak(text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = 'en-US';
+  speechSynthesis.speak(utterance);
+}
+
+// ChatGPT interaction (mocked for now)
+const input = document.getElementById('chatInput');
+input.addEventListener('keydown', async (e) => {
+  if (e.key === 'Enter' && input.value.trim() !== '') {
+    const userMessage = input.value.trim();
+    input.value = '';
+
+    // Simulasi respons (ganti dengan fetch ke API OpenAI jika perlu)
+    const reply = await getChatResponse(userMessage);
+    speak(reply);
+  }
+});
+
+async function getChatResponse(text) {
+  // Ganti ini dengan fetch ke server OpenAI API kalau perlu
+  const responses = {
+    hello: "Hi there! I'm your virtual companion.",
+    name: "My name is Ani, nice to meet you!",
+  };
+  const lower = text.toLowerCase();
+  return responses[lower] || "I'm still learning to respond to that.";
+}
 
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
