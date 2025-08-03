@@ -2,57 +2,58 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Avatar AI Template</title>
+  <title>3D Avatar Viewer</title>
   <style>
     body { margin: 0; overflow: hidden; }
     canvas { display: block; }
-    #videoElement { display: none; }
-    #chatInput {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      padding: 8px;
-      width: 300px;
-      font-size: 16px;
-    }
   </style>
 </head>
 <body>
-  <video id="videoElement" autoplay muted playsinline></video>
-  <input id="chatInput" type="text" placeholder="Tanya sesuatu....." />
+  <!-- Tambahkan Three.js dan GLTFLoader -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.1/examples/js/loaders/GLTFLoader.js"></script>
 
-<!-- Ganti semua <script type="module"> menjadi biasa -->
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.1/examples/js/loaders/GLTFLoader.js"></script>
-<script>
-  const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+  <script>
+    // Scene setup
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-  const light = new THREE.DirectionalLight(0xffffff, 1);
-  light.position.set(1, 1, 1);
-  scene.add(light);
+    // Lighting
+    const light = new THREE.HemisphereLight(0xffffff, 0x444444);
+    light.position.set(0, 1, 0);
+    scene.add(light);
 
-  let avatar;
-  const loader = new THREE.GLTFLoader();
-  loader.load('avatar.glb', function(gltf) {
-    avatar = gltf.scene;
-    scene.add(avatar);
-    avatar.position.set(0, -1, 0);
+    // Load GLB model
+    const loader = new THREE.GLTFLoader();
+    loader.load('avatar.glb', function (gltf) {
+      const model = gltf.scene;
+      model.position.set(0, -1, 0);
+      scene.add(model);
+
+      animate();
+    }, undefined, function (error) {
+      console.error("Failed to load model:", error);
+    });
+
+    // Camera
     camera.position.z = 2;
-    animate();
-  }, undefined, function(error) {
-    console.error("GLTF Load Error:", error);
-  });
 
-  function animate() {
-    requestAnimationFrame(animate);
-    if (avatar) avatar.rotation.y += 0.01;
-    renderer.render(scene, camera);
-  }
-</script>
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+      scene.rotation.y += 0.005;
+      renderer.render(scene, camera);
+    }
+
+    // Responsive
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
 </body>
 </html>
